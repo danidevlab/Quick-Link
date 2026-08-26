@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0">
+
+    <title>Quick Link - 이동 중...</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Supabase JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    animation: {
+                        'fade-in': 'fadeIn 0.45s ease-out',
+                        'slide-up': 'slideUp 0.45s ease-out',
+                    },
+
+                    keyframes: {
+                        fadeIn: {
+                            '0%': {
+                                opacity: '0'
+                            },
+                            '100%': {
+                                opacity: '1'
+                            }
+                        },
+
+                        slideUp: {
+                            '0%': {
+                                opacity: '0',
+                                transform: 'translateY(12px)'
+                            },
+                            '100%': {
+                                opacity: '1',
+                                transform: 'translateY(0)'
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+
+        body {
+            font-family:
+                -apple-system,
+                BlinkMacSystemFont,
+                "Segoe UI",
+                Roboto,
+                "Noto Sans KR",
+                Arial,
+                sans-serif;
+        }
+
+        .glass {
+            background: rgba(255, 255, 255, 0.88);
+
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+
+        .spinner {
+            animation:
+                spinner 0.9s linear infinite;
+        }
+
+        @keyframes spinner {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+    </style>
+</head>
+
+
+<body class="
+    min-h-screen
+    bg-slate-950
+    flex
+    items-center
+    justify-center
+    p-4
+">
+
+
+    <!-- ========================================= -->
+    <!-- Background -->
+    <!-- ========================================= -->
+
+    <div class="
+        fixed
+        inset-0
+        overflow-hidden
+        pointer-events-none
+    ">
+
+        <div class="
+            absolute
+            -top-40
+            -left-40
+            w-96
+            h-96
+            rounded-full
+            bg-indigo-600/30
+            blur-3xl
+        "></div>
+
+
+        <div class="
+            absolute
+            top-1/3
+            -right-40
+            w-96
+            h-96
+            rounded-full
+            bg-violet-600/20
+            blur-3xl
+        "></div>
+
+
+        <div class="
+            absolute
+            -bottom-40
+            left-1/3
+            w-96
+            h-96
+            rounded-full
+            bg-blue-600/20
+            blur-3xl
+        "></div>
+
+    </div>
+
+
+
+    <!-- ========================================= -->
+    <!-- Main -->
+    <!-- ========================================= -->
+
+    <main class="
+        relative
+        w-full
+        max-w-lg
+    ">
+
+
+        <!-- ========================================= -->
+        <!-- Loading Card -->
+        <!-- ========================================= -->
+
+        <div
+            id="loading-card"
+            class="
+                glass
+                w-full
+                rounded-3xl
+                border
+                border-white/10
+                shadow-2xl
+                shadow-black/30
+                p-8
+                sm:p-10
+                text-center
+                animate-slide-up
+            "
+        >
+
+
+            <!-- Icon -->
+
+            <div class="
+                w-16
+                h-16
+                mx-auto
+                rounded-2xl
+                bg-gradient-to-br
+                from-indigo-500
+                to-violet-600
+                flex
+                items-center
+                justify-center
+                shadow-lg
+                shadow-indigo-500/25
+            ">
+
+                <svg
+                    class="spinner"
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="30"
+                    height="30"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="white"
+                    stroke-width="2.2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                >
+
+                    <path
+                        d="M12 2v4"
+                    />
+
+                    <path
+                        d="M12 18v4"
+                    />
+
+                    <path
+                        d="m4.93 4.93 2.83 2.83"
+                    />
+
+                    <path
+                        d="m16.24 16.24 2.83 2.83"
+                    />
+
+                    <path
+                        d="M2 12h4"
+                    />
+
+                    <path
+                        d="M18 12h4"
+                    />
+
+                    <path
+                        d="m4.93 19.07 2.83-2.83"
+                    />
+
+                    <path
+                        d="m16.24 7.76 2.83-2.83"
+                    />
+
+                </svg>
+
+            </div>
+
+
+
+            <!-- Badge -->
+
+            <div class="mt-6">
+
+                <span class="
+                    inline-flex
+                    items-center
+                    gap-1.5
+                    px-3
+                    py-1
+                    rounded-full
+                    bg-indigo-50
+                    text-indigo-600
+                    text-xs
+                    font-semibold
+                    uppercase
+                    tracking-wider
+                ">
+
+                    <span class="
+                        w-1.5
+                        h-1.5
+                        rounded-full
+                        bg-indigo-500
+                        animate-pulse
+                    "></span>
+
+                    Quick Link
+
+                </span>
+
+            </div>
+
+
+
+            <!-- Title -->
+
+            <h1 class="
+                text-2xl
+                sm:text-3xl
+                font-bold
+                text-slate-800
+                mt-4
+            ">
+
+                잠시만 기다려주세요
+
+            </h1>
+
+
+
+            <!-- Description -->
+
+            <p class="
+                text-sm
+                text-slate-500
+                mt-2
+                leading-relaxed
+            ">
+
+                요청하신 단축 링크를
+                <br class="sm:hidden">
+                확인하고 있습니다.
+
+            </p>
+
+
+
+            <!-- Loading -->
+
+            <div class="
+                mt-7
+                flex
+                items-center
+                justify-center
+                gap-2
+                text-xs
+                text-slate-400
+            ">
+
+                <span class="
+                    w-1.5
+                    h-1.5
+                    rounded-full
+                    bg-indigo-500
+                    animate-bounce
+                "></span>
+
+                <span
+                    style="animation-delay: 0.15s"
+                    class="
+                        w-1.5
+                        h-1.5
+                        rounded-full
+                        bg-indigo-500
+                        animate-bounce
+                    "
+                ></span>
+
+                <span
+                    style="animation-delay: 0.3s"
+                    class="
+                        w-1.5
+                        h-1.5
+                        rounded-full
+                        bg-indigo-500
+                        animate-bounce
+                    "
+                ></span>
+
+                <span class="ml-1">
+                    이동 준비 중
+                </span>
+
+            </div>
+
+
+            <!-- Footer -->
+
+            <div class="
+                mt-8
+                pt-5
+                border-t
+                border-slate-200
+                text-xs
+                text-slate-400
+            ">
+
+                Quick Link · Simple & Fast
+
+            </div>
+
+        </div>
+
+
+
+        <!-- ========================================= -->
+        <!-- Error Card -->
+        <!-- ========================================= -->
+
+        <div
+            id="error-card"
+            class="
+                hidden
+                glass
+                w-full
+                rounded-3xl
+                border
+                border-white/10
+                shadow-2xl
+                shadow-black/30
+                p-8
+                sm:p-10
+                text-center
+                animate-slide-up
+            "
+        >
+
+
+            <!-- Error Icon -->
+
+            <div class="
+                w-16
+                h-16
+                mx-auto
+                rounded-2xl
+                bg-gradient-to-br
+                from-rose-500
+                to-red-600
+                flex
+                items-center
+                justify-center
+                shadow-lg
+                shadow-rose-500/20
+            ">
+
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="30"
+                    height="30"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="white"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                >
+
+                    <circle
+                        cx="12"
+                        cy="12"
+                        r="10"
+                    />
+
+                    <line
+                        x1="12"
+                        y1="8"
+                        x2="12"
+                        y2="12"
+                    />
+
+                    <line
+                        x1="12"
+                        y1="16"
+                        x2="12.01"
+                        y2="16"
+                    />
+
+                </svg>
+
+            </div>
+
+
+
+            <!-- Badge -->
+
+            <div class="mt-6">
+
+                <span class="
+                    inline-flex
+                    items-center
+                    px-3
+                    py-1
+                    rounded-full
+                    bg-rose-50
+                    text-rose-600
+                    text-xs
+                    font-semibold
+                    uppercase
+                    tracking-wider
+                ">
+
+                    404 Error
+
+                </span>
+
+            </div>
+
+
+
+            <!-- Title -->
+
+            <h1 class="
+                text-2xl
+                sm:text-3xl
+                font-bold
+                text-slate-800
+                mt-4
+            ">
+
+                링크를 찾을 수 없습니다
+
+            </h1>
+
+
+
+            <!-- Description -->
+
+            <p class="
+                text-sm
+                text-slate-500
+                mt-3
+                leading-relaxed
+            ">
+
+                요청하신 단축 링크가 존재하지 않거나
+                <br class="sm:hidden">
+                삭제되었을 수 있습니다.
+
+            </p>
+
+
+
+            <!-- Requested URL -->
+
+            <div
+                id="requested-url"
+                class="
+                    mt-6
+                    px-4
+                    py-3
+                    rounded-xl
+                    bg-slate-50
+                    border
+                    border-slate-200
+                    text-sm
+                    text-slate-500
+                    truncate
+                "
+            ></div>
+
+
+
+            <!-- Home Button -->
+
+            <a
+                href="/"
+                class="
+                    mt-6
+                    w-full
+                    inline-flex
+                    items-center
+                    justify-center
+                    gap-2
+                    px-5
+                    py-3.5
+                    rounded-xl
+                    bg-gradient-to-r
+                    from-indigo-600
+                    to-violet-600
+                    hover:from-indigo-500
+                    hover:to-violet-500
+                    text-white
+                    text-sm
+                    font-semibold
+                    shadow-lg
+                    shadow-indigo-500/20
+                    transition
+                    duration-200
+                    hover:-translate-y-0.5
+                "
+            >
+
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="17"
+                    height="17"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                >
+
+                    <path
+                        d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5
+                           a2 2 0 0 1-2-2z"
+                    />
+
+                    <polyline
+                        points="9 22 9 12 15 12 15 22"
+                    />
+
+                </svg>
+
+                메인으로 돌아가기
+
+            </a>
+
+
+
+            <!-- Footer -->
+
+            <div class="
+                mt-7
+                pt-5
+                border-t
+                border-slate-200
+                text-xs
+                text-slate-400
+            ">
+
+                Quick Link · Simple & Fast
+
+            </div>
+
+        </div>
+
+    </main>
+
+
+
+    <script>
+
+        // ==================================================
+        // Supabase 설정
+        // ==================================================
+
+        const SUPABASE_URL =
+            'https://YOUR_SUPABASE_PROJECT_ID.supabase.co';
+
+        const SUPABASE_ANON_KEY =
+            'YOUR_SUPABASE_ANON_KEY';
+
+
+        // ==================================================
+        // Supabase Client
+        // ==================================================
+
+        const {
+            createClient
+        } = supabase;
+
+
+        const _supabase =
+            createClient(
+                SUPABASE_URL,
+                SUPABASE_ANON_KEY
+            );
+
+
+        // ==================================================
+        // DOM
+        // ==================================================
+
+        const loadingCard =
+            document.getElementById(
+                'loading-card'
+            );
+
+
+        const errorCard =
+            document.getElementById(
+                'error-card'
+            );
+
+
+        const requestedUrl =
+            document.getElementById(
+                'requested-url'
+            );
+
+
+        // ==================================================
+        // 오류 표시
+        // ==================================================
+
+        function showError() {
+
+            loadingCard.classList.add(
+                'hidden'
+            );
+
+            errorCard.classList.remove(
+                'hidden'
+            );
+
+            requestedUrl.textContent =
+                window.location.pathname;
+
+            document.title =
+                '404 - 링크를 찾을 수 없습니다';
+        }
+
+
+        // ==================================================
+        // Short Code 추출
+        // ==================================================
+
+        function getShortCode() {
+
+            let path =
+                window.location.pathname;
+
+
+            // 앞 / 제거
+
+            path =
+                path.replace(
+                    /^\/+/,
+                    ''
+                );
+
+
+            // 뒤 / 제거
+
+            path =
+                path.replace(
+                    /\/+$/,
+                    ''
+                );
+
+
+            // URL Decode
+
+            try {
+
+                path =
+                    decodeURIComponent(
+                        path
+                    );
+
+            } catch {
+
+                return '';
+            }
+
+
+            // 소문자 변환
+
+            return path.toLowerCase();
+        }
+
+
+        // ==================================================
+        // 링크 조회
+        // ==================================================
+
+        async function resolveShortLink() {
+
+            const shortCode =
+                getShortCode();
+
+
+            // ----------------------------------------------
+            // 루트 접근
+            // ----------------------------------------------
+
+            if (!shortCode) {
+
+                showError();
+
+                return;
+            }
+
+
+            // ----------------------------------------------
+            // 비정상적인 경로 차단
+            // ----------------------------------------------
+
+            if (
+                shortCode.includes('/') ||
+                shortCode.length > 100
+            ) {
+
+                showError();
+
+                return;
+            }
+
+
+            try {
+
+                // ------------------------------------------
+                // Supabase 조회
+                // ------------------------------------------
+
+                const {
+                    data,
+                    error
+                } = await _supabase
+
+                    .from('short_links')
+
+                    .select('target_url')
+
+                    .eq(
+                        'short_code',
+                        shortCode
+                    )
+
+                    .maybeSingle();
+
+
+                // ------------------------------------------
+                // 링크 없음
+                // ------------------------------------------
+
+                if (
+                    error ||
+                    !data ||
+                    !data.target_url
+                ) {
+
+                    console.error(
+                        'Short link lookup failed:',
+                        error
+                    );
+
+                    showError();
+
+                    return;
+                }
+
+
+                // ------------------------------------------
+                // URL 검증
+                // ------------------------------------------
+
+                let targetUrl;
+
+                try {
+
+                    targetUrl =
+                        new URL(
+                            data.target_url
+                        );
+
+                } catch {
+
+                    showError();
+
+                    return;
+                }
+
+
+                // HTTP / HTTPS만 허용
+
+                if (
+                    targetUrl.protocol !== 'http:' &&
+                    targetUrl.protocol !== 'https:'
+                ) {
+
+                    showError();
+
+                    return;
+                }
+
+
+                // ------------------------------------------
+                // Redirect
+                // ------------------------------------------
+
+                window.location.replace(
+                    targetUrl.href
+                );
+
+            } catch (error) {
+
+                console.error(
+                    'Redirect error:',
+                    error
+                );
+
+                showError();
+            }
+        }
+
+
+        // ==================================================
+        // 실행
+        // ==================================================
+
+        resolveShortLink();
+
+    </script>
+
+</body>
+</html>

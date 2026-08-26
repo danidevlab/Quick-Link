@@ -1,0 +1,923 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Quick Link - 단축 링크 생성기</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Supabase JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    animation: {
+                        'fade-in': 'fadeIn 0.4s ease-out',
+                        'slide-up': 'slideUp 0.4s ease-out',
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' },
+                        },
+                        slideUp: {
+                            '0%': {
+                                opacity: '0',
+                                transform: 'translateY(10px)'
+                            },
+                            '100%': {
+                                opacity: '1',
+                                transform: 'translateY(0)'
+                            },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family:
+                -apple-system,
+                BlinkMacSystemFont,
+                "Segoe UI",
+                Roboto,
+                "Noto Sans KR",
+                Arial,
+                sans-serif;
+        }
+
+        .glass {
+            background: rgba(255, 255, 255, 0.82);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+
+        .input-focus {
+            transition: all 0.2s ease;
+        }
+
+        .input-focus:focus {
+            box-shadow:
+                0 0 0 4px rgba(99, 102, 241, 0.10),
+                0 4px 12px rgba(99, 102, 241, 0.05);
+        }
+    </style>
+</head>
+
+<body class="min-h-screen bg-slate-950">
+
+    <!-- Background -->
+    <div class="fixed inset-0 overflow-hidden pointer-events-none">
+        <div class="absolute -top-40 -left-40 w-96 h-96 bg-indigo-600/30 rounded-full blur-3xl"></div>
+        <div class="absolute top-1/3 -right-40 w-96 h-96 bg-violet-600/20 rounded-full blur-3xl"></div>
+        <div class="absolute -bottom-40 left-1/3 w-96 h-96 bg-blue-600/20 rounded-full blur-3xl"></div>
+    </div>
+
+
+    <!-- Main -->
+    <main class="relative min-h-screen flex items-center justify-center px-4 py-10">
+
+        <div class="w-full max-w-lg">
+
+            <!-- Header -->
+            <div class="text-center mb-8 animate-fade-in">
+
+                <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full
+                            bg-indigo-500/10 border border-indigo-400/20
+                            text-indigo-300 text-xs font-semibold tracking-wide mb-5">
+
+                    <span class="w-1.5 h-1.5 bg-indigo-400 rounded-full animate-pulse"></span>
+
+                    QUICK LINK
+                </div>
+
+                <h1 class="text-4xl sm:text-5xl font-bold text-white tracking-tight">
+                    단축 링크
+                    <span class="text-transparent bg-clip-text
+                                 bg-gradient-to-r from-indigo-400 to-violet-400">
+                        생성기
+                    </span>
+                </h1>
+
+                <p class="mt-4 text-slate-400 text-sm sm:text-base">
+                    긴 URL을 짧고 기억하기 쉬운 주소로 만들어보세요.
+                </p>
+            </div>
+
+
+            <!-- Card -->
+            <div class="glass rounded-3xl border border-white/10
+                        shadow-2xl shadow-black/30
+                        p-6 sm:p-8 animate-slide-up">
+
+                <!-- Card Header -->
+                <div class="flex items-center gap-3 mb-7">
+
+                    <div class="w-11 h-11 rounded-xl
+                                bg-gradient-to-br from-indigo-500 to-violet-600
+                                flex items-center justify-center
+                                shadow-lg shadow-indigo-500/20">
+
+                        <!-- Link Icon -->
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="21"
+                            height="21"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="white"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round">
+                            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+                            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+                        </svg>
+                    </div>
+
+                    <div>
+                        <h2 class="font-semibold text-slate-800">
+                            새 단축 링크 만들기
+                        </h2>
+
+                        <p class="text-xs text-slate-500 mt-0.5">
+                            원하는 키워드를 직접 설정할 수 있습니다.
+                        </p>
+                    </div>
+
+                </div>
+
+
+                <!-- Form -->
+                <form id="link-form" class="space-y-6">
+
+                    <!-- Short Code -->
+                    <div>
+
+                        <label
+                            for="short-code"
+                            class="block text-sm font-semibold text-slate-700 mb-2">
+                            단축 키워드
+                        </label>
+
+                        <div class="flex">
+
+                            <div class="flex items-center px-4
+                                        rounded-l-xl border border-r-0
+                                        border-slate-200
+                                        bg-slate-100 text-slate-500
+                                        text-sm font-medium">
+                                /
+                            </div>
+
+                            <input
+                                type="text"
+                                id="short-code"
+                                required
+                                autocomplete="off"
+                                placeholder="예: google"
+                                pattern="[a-zA-Z0-9_-]+"
+                                title="영문, 숫자, -, _만 사용할 수 있습니다."
+                                class="input-focus flex-1 min-w-0
+                                       px-4 py-3.5
+                                       rounded-r-xl
+                                       border border-slate-200
+                                       bg-white
+                                       text-slate-800
+                                       placeholder:text-slate-400
+                                       outline-none
+                                       text-sm">
+
+                        </div>
+
+                        <p class="mt-2 text-xs text-slate-400">
+                            영문, 숫자, 하이픈(-), 밑줄(_)만 사용할 수 있습니다.
+                        </p>
+
+                    </div>
+
+
+                    <!-- Target URL -->
+                    <div>
+
+                        <label
+                            for="target-url"
+                            class="block text-sm font-semibold text-slate-700 mb-2">
+                            이동할 실제 주소
+                        </label>
+
+                        <div class="relative">
+
+                            <div class="absolute left-4 top-1/2 -translate-y-1/2
+                                        text-slate-400">
+
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    width="17"
+                                    height="17"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="2"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round">
+
+                                    <circle cx="12" cy="12" r="10"/>
+                                    <line x1="2" y1="12" x2="22" y2="12"/>
+                                    <path d="M12 2a15.3 15.3 0 0 1 4 10
+                                             15.3 15.3 0 0 1-4 10
+                                             15.3 15.3 0 0 1-4-10
+                                             15.3 15.3 0 0 1 4-10z"/>
+                                </svg>
+
+                            </div>
+
+                            <input
+                                type="url"
+                                id="target-url"
+                                required
+                                placeholder="https://example.com"
+                                class="input-focus w-full
+                                       pl-11 pr-4 py-3.5
+                                       rounded-xl
+                                       border border-slate-200
+                                       bg-white
+                                       text-slate-800
+                                       placeholder:text-slate-400
+                                       outline-none
+                                       text-sm">
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- Submit -->
+                    <button
+                        type="submit"
+                        id="submit-btn"
+                        class="group relative w-full
+                               py-3.5 px-4
+                               rounded-xl
+                               bg-gradient-to-r from-indigo-600 to-violet-600
+                               hover:from-indigo-500 hover:to-violet-500
+                               text-white
+                               font-semibold
+                               text-sm
+                               shadow-lg shadow-indigo-500/25
+                               transition-all duration-200
+                               hover:-translate-y-0.5
+                               active:translate-y-0
+                               disabled:opacity-60
+                               disabled:cursor-not-allowed
+                               disabled:hover:translate-y-0">
+
+                        <span id="button-content"
+                              class="flex items-center justify-center gap-2">
+
+                            <span>링크 등록하기</span>
+
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="17"
+                                height="17"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                class="transition-transform group-hover:translate-x-1">
+
+                                <path d="M5 12h14"/>
+                                <path d="m12 5 7 7-7 7"/>
+
+                            </svg>
+
+                        </span>
+
+                    </button>
+
+                </form>
+
+
+                <!-- Result -->
+                <div
+                    id="result"
+                    class="hidden mt-6 rounded-2xl p-4 animate-fade-in">
+                </div>
+
+
+                <!-- Footer -->
+                <div class="flex items-center justify-center gap-2 mt-7 pt-5
+                            border-t border-slate-200">
+
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="14"
+                        height="14"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        class="text-slate-400">
+
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                    </svg>
+
+                    <span class="text-xs text-slate-400">
+                        안전하게 링크를 관리하세요.
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <!-- Bottom text -->
+            <p class="text-center text-xs text-slate-500 mt-6">
+                Quick Link · Simple & Fast URL Shortener
+            </p>
+
+        </div>
+
+    </main>
+
+
+    <script>
+
+        // ============================================
+        // Supabase 설정
+        // ============================================
+
+        const SUPABASE_URL =
+            'https://YOUR_SUPABASE_PROJECT_ID.supabase.co';
+
+        const SUPABASE_ANON_KEY =
+            'YOUR_SUPABASE_ANON_KEY';
+
+
+        const { createClient } = supabase;
+
+        const _supabase = createClient(
+            SUPABASE_URL,
+            SUPABASE_ANON_KEY
+        );
+
+
+        // 실제 단축 URL 도메인
+        // 예: https://yourdomain.com
+        const SHORT_DOMAIN = 'https://yourdomain.com';
+
+
+        // ============================================
+        // DOM
+        // ============================================
+
+        const form =
+            document.getElementById('link-form');
+
+        const shortCodeInput =
+            document.getElementById('short-code');
+
+        const targetUrlInput =
+            document.getElementById('target-url');
+
+        const resultDiv =
+            document.getElementById('result');
+
+        const submitBtn =
+            document.getElementById('submit-btn');
+
+        const buttonContent =
+            document.getElementById('button-content');
+
+
+        // ============================================
+        // 결과 메시지
+        // ============================================
+
+        function showResult(type, message) {
+
+            resultDiv.className =
+                'mt-6 rounded-2xl p-4 animate-fade-in';
+
+            if (type === 'success') {
+
+                resultDiv.classList.add(
+                    'bg-emerald-50',
+                    'border',
+                    'border-emerald-100'
+                );
+
+            } else if (type === 'error') {
+
+                resultDiv.classList.add(
+                    'bg-rose-50',
+                    'border',
+                    'border-rose-100'
+                );
+
+            } else {
+
+                resultDiv.classList.add(
+                    'bg-slate-50',
+                    'border',
+                    'border-slate-100'
+                );
+            }
+
+            resultDiv.classList.remove('hidden');
+
+            resultDiv.innerHTML = message;
+        }
+
+
+        // ============================================
+        // 로딩 상태
+        // ============================================
+
+        function setLoading(isLoading) {
+
+            submitBtn.disabled = isLoading;
+
+            if (isLoading) {
+
+                buttonContent.innerHTML = `
+                    <svg
+                        class="animate-spin"
+                        width="17"
+                        height="17"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2">
+
+                        <circle
+                            cx="12"
+                            cy="12"
+                            r="9"
+                            stroke-opacity="0.25">
+                        </circle>
+
+                        <path
+                            d="M21 12a9 9 0 0 1-9 9">
+                        </path>
+                    </svg>
+
+                    <span>등록 중...</span>
+                `;
+
+            } else {
+
+                buttonContent.innerHTML = `
+                    <span>링크 등록하기</span>
+
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="17"
+                        height="17"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round">
+
+                        <path d="M5 12h14"/>
+                        <path d="m12 5 7 7-7 7"/>
+                    </svg>
+                `;
+            }
+        }
+
+
+        // ============================================
+        // 복사
+        // ============================================
+
+        async function copyLink(url) {
+
+            try {
+
+                await navigator.clipboard.writeText(url);
+
+                const copyButton =
+                    document.getElementById('copy-btn');
+
+                copyButton.innerHTML = `
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2">
+
+                        <polyline points="20 6 9 17 4 12"/>
+                    </svg>
+
+                    복사 완료
+                `;
+
+                copyButton.classList.remove(
+                    'bg-indigo-600',
+                    'hover:bg-indigo-700'
+                );
+
+                copyButton.classList.add(
+                    'bg-emerald-600'
+                );
+
+            } catch (error) {
+
+                alert('링크 복사에 실패했습니다.');
+            }
+        }
+
+
+        // ============================================
+        // 폼 제출
+        // ============================================
+
+        form.addEventListener(
+            'submit',
+            async (e) => {
+
+                e.preventDefault();
+
+
+                const shortCode =
+                    shortCodeInput.value
+                        .trim()
+                        .toLowerCase();
+
+                const targetUrl =
+                    targetUrlInput.value.trim();
+
+
+                // ----------------------------------------
+                // 키워드 검증
+                // ----------------------------------------
+
+                const shortCodeRegex =
+                    /^[a-zA-Z0-9_-]+$/;
+
+                if (!shortCodeRegex.test(shortCode)) {
+
+                    showResult(
+                        'error',
+                        `
+                        <div class="flex gap-3">
+
+                            <div class="text-rose-500 mt-0.5">
+                                ⚠️
+                            </div>
+
+                            <div>
+                                <p class="font-semibold text-rose-700">
+                                    사용할 수 없는 키워드입니다.
+                                </p>
+
+                                <p class="text-xs text-rose-600 mt-1">
+                                    영문, 숫자, -, _만 사용할 수 있습니다.
+                                </p>
+                            </div>
+
+                        </div>
+                        `
+                    );
+
+                    return;
+                }
+
+
+                // ----------------------------------------
+                // URL 검증
+                // ----------------------------------------
+
+                try {
+
+                    const url =
+                        new URL(targetUrl);
+
+                    if (
+                        url.protocol !== 'http:' &&
+                        url.protocol !== 'https:'
+                    ) {
+                        throw new Error();
+                    }
+
+                } catch {
+
+                    showResult(
+                        'error',
+                        `
+                        <div class="flex gap-3">
+
+                            <div class="text-rose-500 mt-0.5">
+                                ⚠️
+                            </div>
+
+                            <div>
+                                <p class="font-semibold text-rose-700">
+                                    올바른 URL을 입력해주세요.
+                                </p>
+
+                                <p class="text-xs text-rose-600 mt-1">
+                                    예: https://example.com
+                                </p>
+                            </div>
+
+                        </div>
+                        `
+                    );
+
+                    return;
+                }
+
+
+                setLoading(true);
+
+
+                showResult(
+                    'loading',
+                    `
+                    <div class="flex items-center justify-center gap-3">
+
+                        <svg
+                            class="animate-spin text-indigo-500"
+                            width="18"
+                            height="18"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2">
+
+                            <circle
+                                cx="12"
+                                cy="12"
+                                r="9"
+                                stroke-opacity="0.25">
+                            </circle>
+
+                            <path
+                                d="M21 12a9 9 0 0 1-9 9">
+                            </path>
+                        </svg>
+
+                        <span class="text-sm text-slate-600">
+                            링크를 저장하고 있습니다...
+                        </span>
+
+                    </div>
+                    `
+                );
+
+
+                // ========================================
+                // Supabase INSERT
+                // ========================================
+
+                const { data, error } =
+                    await _supabase
+                        .from('short_links')
+                        .insert([
+                            {
+                                short_code: shortCode,
+                                target_url: targetUrl
+                            }
+                        ])
+                        .select();
+
+
+                setLoading(false);
+
+
+                // ========================================
+                // 오류 처리
+                // ========================================
+
+                if (error) {
+
+                    console.error(error);
+
+
+                    // PostgreSQL UNIQUE 오류
+                    if (error.code === '23505') {
+
+                        showResult(
+                            'error',
+                            `
+                            <div class="flex gap-3">
+
+                                <div class="text-rose-500 text-lg">
+                                    ✕
+                                </div>
+
+                                <div>
+
+                                    <p class="font-semibold text-rose-700">
+                                        이미 사용 중인 키워드입니다.
+                                    </p>
+
+                                    <p class="text-xs text-rose-600 mt-1">
+                                        다른 단축 키워드를 사용해주세요.
+                                    </p>
+
+                                </div>
+
+                            </div>
+                            `
+                        );
+
+                    } else {
+
+                        showResult(
+                            'error',
+                            `
+                            <div class="flex gap-3">
+
+                                <div class="text-rose-500 text-lg">
+                                    ✕
+                                </div>
+
+                                <div>
+
+                                    <p class="font-semibold text-rose-700">
+                                        링크 등록에 실패했습니다.
+                                    </p>
+
+                                    <p class="text-xs text-rose-600 mt-1">
+                                        ${escapeHtml(error.message)}
+                                    </p>
+
+                                </div>
+
+                            </div>
+                            `
+                        );
+                    }
+
+                    return;
+                }
+
+
+                // ========================================
+                // 성공
+                // ========================================
+
+                const shortUrl =
+                    `${SHORT_DOMAIN}/${shortCode}`;
+
+
+                showResult(
+                    'success',
+                    `
+                    <div>
+
+                        <div class="flex items-center gap-3 mb-3">
+
+                            <div class="
+                                w-9 h-9
+                                rounded-full
+                                bg-emerald-100
+                                flex items-center justify-center
+                                text-emerald-600
+                            ">
+                                ✓
+                            </div>
+
+                            <div>
+
+                                <p class="font-semibold text-emerald-800">
+                                    링크가 생성되었습니다!
+                                </p>
+
+                                <p class="text-xs text-emerald-600">
+                                    이제 아래 주소를 사용하세요.
+                                </p>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="
+                            flex items-center gap-2
+                            p-3
+                            bg-white
+                            rounded-xl
+                            border border-emerald-100
+                        ">
+
+                            <a
+                                href="${escapeAttribute(shortUrl)}"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                class="
+                                    flex-1
+                                    min-w-0
+                                    text-sm
+                                    font-medium
+                                    text-indigo-600
+                                    hover:text-indigo-700
+                                    truncate
+                                ">
+                                ${escapeHtml(shortUrl)}
+                            </a>
+
+
+                            <button
+                                type="button"
+                                id="copy-btn"
+                                onclick="copyLink('${escapeAttribute(shortUrl)}')"
+                                class="
+                                    flex-shrink-0
+                                    inline-flex
+                                    items-center
+                                    gap-1.5
+                                    px-3
+                                    py-2
+                                    rounded-lg
+                                    bg-indigo-600
+                                    hover:bg-indigo-700
+                                    text-white
+                                    text-xs
+                                    font-semibold
+                                    transition
+                                ">
+
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    width="16"
+                                    height="16"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="2">
+
+                                    <rect
+                                        width="14"
+                                        height="14"
+                                        x="8"
+                                        y="8"
+                                        rx="2"
+                                        ry="2"/>
+
+                                    <path
+                                        d="M4 16c-1.1 0-2-.9-2-2V4
+                                           c0-1.1.9-2 2-2h10
+                                           c1.1 0 2 .9 2 2"/>
+                                </svg>
+
+                                복사
+                            </button>
+
+                        </div>
+
+                    </div>
+                    `
+                );
+
+
+                form.reset();
+            }
+        );
+
+
+        // ============================================
+        // HTML Escape
+        // ============================================
+
+        function escapeHtml(value) {
+
+            return String(value)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+
+        function escapeAttribute(value) {
+
+            return String(value)
+                .replace(/\\/g, '\\\\')
+                .replace(/'/g, "\\'");
+        }
+
+    </script>
+
+</body>
+</html>
